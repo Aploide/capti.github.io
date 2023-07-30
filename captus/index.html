@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+     <link rel="shortcut icon" href="https://cxrlodesign.com/favicon-captus.ico" />
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     <meta name="viewport" content="width=device-width">
+     <meta name="description" content="Captus: Preserve the past">
+     <title>Captus: Preserve the past</title>
+     <link rel="stylesheet" href="./style.css" media="screen">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@700&display=swap" rel="stylesheet">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+     <script     id="questo è l'uploader"     src="//static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, orientation=portrait">
+    </head>
+    <body id="corpo">
+    <div id="uploan" class="upload">
+      <div id="upload" class="upload-o"></div>
+      </div>
+    </div>
+    <div id="main" class="main">
+        <div class="conteggio" id="ai">0/10</div>
+        <div class="camera"><div class="feed" oncontextmenu="return false;" id="camera-feed"></div>
+        <div class="bottoni">
+          <img src="./assets/scatta.svg" oncontextmenu="return false;" class="scatta" role="button" onclick="escatta()" alt="scatta">
+          <img src="./assets/gira.svg" class="gira" oncontextmenu="return false;" role="button" onclick="gira()" alt="gira">
+          <img src="./assets/nflash.svg" class="flash" oncontextmenu="return false;" role="button" onclick="flash()" id="flash" alt="flash">
+
+        </div> 
+      <script>
+        //variabili
+        var giulia = "user";
+        var chicca=["user", "environment"];
+        var ind=0;
+
+        ///cattura video
+          const video = document.createElement('video');
+          video.setAttribute('autoplay', '');
+          video.setAttribute('muted', '');
+          video.setAttribute('playsinline', '');
+          video.setAttribute('facing-mode', giulia);
+        
+          navigator.mediaDevices.getUserMedia({video: { facingMode: giulia }})
+            .then(stream => {
+              video.srcObject = stream;
+              video.onloadedmetadata = () => {
+                document.querySelector("#camera-feed").appendChild(video);
+                video.play();
+              };
+            })
+            .catch(console.error);
+
+/// giro cam
+function gira(){
+  ind=(ind+1)%chicca.length;giulia=chicca[ind];
+  video.setAttribute('facing-mode', giulia);
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: giulia }, width: { ideal: 1024 },height: { ideal: 786 }}).then(stream => {let tracks = video.srcObject.getTracks();tracks.forEach(function(track) {track.stop();});video.srcObject = stream;}).catch(console.error);}
+
+       /// flash si/no
+        var activeTrack = null;
+        var poppo=true;
+        var poss=["./assets/nflash.svg", "./assets/flash.svg"];
+        var index= 0;
+        var fla= document.getElementById("flash");
+        var flvs= "";
+
+       function flash(){index=(index+1)%poss.length; fla.src=poss[index]; flvs=poss[index];}
+
+
+       ///aspetta async e await
+       const wait = (duration) => {return new Promise((resolve) => setTimeout(resolve, duration));};
+       const delay = async (duration) => {await wait(duration);};
+
+
+
+
+/// prendo la data, flash acceso o spento, aggiungo i layer, dopo 10 foto zippo, spengo tutti i flash se accesi
+        var crp= document.getElementById("corpo");
+        var mn= document.getElementById("main");
+        var up=document.getElementById("upload");
+        let videoTrack;
+        var av=0; 
+        var zip= new JSZip();
+        var qr= new Image();
+        var hash= new Image();
+        qr.src= "./assets/666.png";
+        hash.src= "./assets/captus.png";
+
+/// funzione
+
+        function copia(){const rana = document.querySelector('.giggiolon').href; navigator.clipboard.writeText(rana);}
+
+        async function escatta(){
+
+          //statement if per ciclo while 
+          if(av<10){
+          var count= document.getElementById("ai");
+          av=av+1;
+          count.innerHTML= av+"/10";
+
+          // flash frontale e posteriore
+
+          if (flvs == "./assets/flash.svg" && giulia === "user"){crp.setAttribute("style", "background: #ffffff"); await delay(200);}
+          if(giulia === "environment" && flvs == "./assets/flash.svg" && navigator.mediaDevices.getSupportedConstraints().hasOwnProperty('torch')){activeTrack = video.srcObject.getTracks()[0];video.srcObject.removeTrack(activeTrack);let constraints = { video: {facingMode: giulia, deviceId: activeTrack.getSettings().deviceId, frameRate: { ideal: 10, max: 15 }, width: { ideal: 1024 },height: { ideal: 786 }},};navigator.mediaDevices.getUserMedia(constraints) .then(stream => {let tracks = video.srcObject.getTracks();tracks.forEach(function(track) {track.stop();});video.srcObject = stream;video.play(); stream.getTracks()[0].applyConstraints({advanced: [{torch: true}]});}).catch(console.error); await delay(200);}
+          
+          //dichiarazione dei 3 canvas
+          let canvas= document.createElement("canvas"); canvas.width= video.videoWidth; canvas.height= video.videoHeight;
+          let layer= document.createElement("canvas"); layer.width= video.videoWidth; layer.height= video.videoHeight; 
+          let final= document.createElement("canvas"); final.width= video.videoWidth; final.height= video.videoHeight; 
+          pino = canvas.getContext("2d");
+          lino = layer.getContext("2d"); 
+          mari = final.getContext("2d"); 
+
+          // effettivo scatto
+          if(giulia === "user"){pino.scale(-1, 1);pino.drawImage(video, -canvas.width, 0);} else {pino.drawImage(video, 0, 0);}
+
+          //unione dei layer
+          lino.drawImage(qr, 20, 550); lino.drawImage(hash, 350, 580); mari.drawImage(canvas, 0, 0); mari.drawImage(layer, 0, 0);
+
+          // creazione url, fetch della data e scrittura dello zip
+          let dataUrl= final.toDataURL("image/png");
+          const da= new Date();
+          var ora= `${da.getDay()}-${da.getMonth()+1}-${da.getUTCFullYear()}-${da.getHours()}`;
+          var ms= Date.now();
+          zip.file(`lupo-${av}-${ora}.jpg`, dataUrl.split(",")[1], {base64: true});
+          if(av==10){  zip.generateAsync({type:"blob"})
+    .then(function(content) {const file = content;
+
+      // Cancella main
+      mn.remove();
+
+      // Upload dei file
+      const apiKey = "Alk2RjfTR86KxI5uDt3oSz"; //API
+
+      // nome + upload
+      const nome = `lupo-${ms}.zip`;
+      const client = filestack.init(apiKey);
+
+// Upload file su Filestack
+const filestackUrl = 'https://www.filestackapi.com/api/store/S3';
+const formData = new FormData();
+formData.append('fileUpload', file); // carichi il file con variabile file
+
+fetch(`${filestackUrl}?key=${apiKey}&filename=${nome}`, {
+  method: 'POST',
+  body: formData})
+.then(response => response.json())
+.then(result => {
+  // Crea URL del file
+  const filehandle = result.url;
+ 
+  //imposta var linkotto
+  linkotto=`https://aploide.github.io/captus.github.io/ottieni/?foto=${filehandle}`;
+  up.innerHTML= `You can get your photos <a class="giggiolon" href=${linkotto}>here!</a><a onclick="copia()" class="copia"> copy link</a>`;    
+}).catch(error => console.error(error));});}}
+      
+
+          await delay(200);
+
+          //spegnimento dei flash se attivi
+          if (flvs == "./assets/flash.svg"){crp.setAttribute("style", "background: #1d1d1d"); activeTrack = video.srcObject.getTracks()[0];video.srcObject.removeTrack(activeTrack);activeTrack.applyConstraints({advanced: [{torch: false}]}); navigator.mediaDevices.getUserMedia({ video: { facingMode: giulia } }).then(stream => {let tracks = video.srcObject.getTracks();tracks.forEach(function(track) {track.stop();});video.srcObject = stream;video.play();})}}
+          //blocco dell orientamento
+          window.addEventListener("orientationchange", function() {if (screen.orientation.angle === 90) {document.body.style.display = "none"; document.getElementById("rotate").style.display = "block";}else {document.body.style.display = "block"; document.getElementById("rotate").style.display = "none";}});
+</script></div>
+    </div>
+    </body>
+</html>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-091DT5433Q"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-091DT5433Q');
+</script>
+

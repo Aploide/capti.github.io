@@ -1,0 +1,100 @@
+<html><head>
+     <link rel="shortcut icon" href="https://cxrlodesign.com/favicon-captus.ico">
+     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     <meta name="viewport" content="width=device-width">
+     <meta name="description" content="Captus: Preserve the past">
+     <title>Captus: Preserve the past</title>
+     <link rel="stylesheet" href="./assets/css.css" media="screen">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght&display=swap" rel="stylesheet">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/tiny-slider.css">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, orientation=portrait">
+    </head>   
+    <body>  
+    <div id="main" class="main">
+        <div class="fotot">
+          <div class="my-slider">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <img class="foto" src="" href="" id="foto">
+        </div>
+        <div class="bottoni">
+          <div oncontextmenu="return false;" class="down" role="button" onclick="down()" alt="down">Download</div>
+          <div class="cond" oncontextmenu="return false;" role="button" onclick="cond()" alt="cond"></div>
+        </div> 
+    </div>
+      <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    ottieni()});
+    
+    indice= 0;
+
+    //ottieni le foto dal server
+    function ottieni(){
+
+    //leggi i parametri 
+    const queryString = window.location.search;
+    const params = new URLSearchParams(queryString);
+    const oliver = params.get('foto');
+
+    const API = "Alk2RjfTR86KxI5uDt3oSz"; //API
+
+    fetch(oliver)
+  .then(response => response.blob())
+  .then(zipBlob => {
+    // estrae il file zip
+    return JSZip.loadAsync(zipBlob);
+  })
+  .then(zip => {
+    // prende l'oggetto dell'indice dallo zip
+    const photo = Object.values(zip.files)[indice];
+    // Create a blob URL for the photo
+    const fotografia = URL.createObjectURL(new Blob([photo._data.compressedContent], { type: photo._data.uncompressedSize }));
+    // rende la foto attributo di "foto"
+    const imgElement = document.getElementById('foto');
+    imgElement.src = fotografia;
+    imgElement.href = fotografia;
+  })
+  .catch(error => {
+    console.error(error);
+  });
+  }
+
+    
+    //download e condivisione
+    const titolo= `capti-at-${Math.random()}-${indice}.png`;
+    function down(){saveAs(foto.href, titolo);}
+    function cond() {
+  if (navigator.share) {
+    // Create a new file object from the image URL
+    fetch(foto.src)
+      .then(response => response.blob())
+      .then(blob => {
+        const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+        // Share the file using the Web Share API
+        navigator.share({ files: [file], title: 'Captus', text: 'Hey, check this image I took on Captus!' })
+          .then(() => console.log('Shared successfully'))
+          .catch(error => console.error('Error sharing:', error));
+      })
+      .catch(error => console.error('Error fetching image:', error));
+  } else {
+    alert('Web Share API not supported on this browser');
+  }
+}
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-091DT5433Q"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-091DT5433Q');
+</script>
+</body></html>
