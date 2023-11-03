@@ -16,13 +16,10 @@
     <body>  
     <div id="main" class="main">
         <div class="fotot">
-          <div class="my-slider">
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <img class="foto" src="" href="" id="foto">
+          <!--<img class="foto" src="" href="" id="foto">-->
         </div>
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
         <div class="bottoni">
           <div oncontextmenu="return false;" class="down" role="button" onclick="down()" alt="down">Download</div>
           <div class="cond" oncontextmenu="return false;" role="button" onclick="cond()" alt="cond"></div>
@@ -31,11 +28,31 @@
       <script>
     document.addEventListener("DOMContentLoaded", function() {
     ottieni()});
-    pablo()
+    var indice = 1;
+    var urlFotoCorrente = "";
+    //pablo()
 
-    function pablo() {
+    /*function pablo() {
       indice = (Math.floor(Math.random() * 10) + 1);
 
+    }*/
+
+
+    function plusSlides(n) {
+      mostraFoto(indice += n);
+    }
+
+    function mostraFoto(n) {
+      let fotoarray = document.getElementsByClassName('foto');
+      if (n > fotoarray.length) {indice = 1;}
+      if (n < 1) {indice = fotoarray.length;}
+      n = indice;
+      for (let i = 0; i < fotoarray.length; i++) {
+        //console.log(fotoarray[i]);
+        fotoarray[i].style.display = "none";
+      }
+      fotoarray[n-1].style.display = "inline";
+      urlFotoCorrente = fotoarray[n-1].getAttribute('src');
     }
 
     //ottieni le foto dal server
@@ -55,14 +72,38 @@
     return JSZip.loadAsync(zipBlob);
   })
   .then(zip => {
+    // <img class="foto" src="" href="" id="foto">
     // prende l'oggetto dell'indice dallo zip
-    const photo = Object.values(zip.files)[indice];
+    Object.values(zip.files).forEach(photo => {
+      let foto = URL.createObjectURL(
+        new Blob(
+          [photo._data.compressedContent],
+          { type: photo._data.uncompressedSize }
+        )
+      );
+      //console.log(foto);
+      let immagine = document.createElement('img');
+      immagine.setAttribute('class', 'foto');
+      immagine.src = foto;
+      immagine.href = foto;
+      immagine.style.display = "none";
+      //console.log(immagine);
+      document.getElementsByClassName("fotot")[0].append(immagine);
+      immagine.href = foto;
+    });
+    mostraFoto(indice);
+    /*const photo = Object.values(zip.files)[indice];
     // Create a blob URL for the photo
-    const fotografia = URL.createObjectURL(new Blob([photo._data.compressedContent], { type: photo._data.uncompressedSize }));
+    const fotografia = URL.createObjectURL(
+      new Blob(
+        [photo._data.compressedContent],
+        { type: photo._data.uncompressedSize }
+      )
+    );
     // rende la foto attributo di "foto"
     const imgElement = document.getElementById('foto');
     imgElement.src = fotografia;
-    imgElement.href = fotografia;
+    imgElement.href = fotografia;*/
   })
   .catch(error => {
     console.error(error);
@@ -72,11 +113,11 @@
     
     //download e condivisione
     const titolo= `capti-at-${Math.random()}-${indice}.png`;
-    function down(){saveAs(foto.href, titolo);}
+    function down(){saveAs(urlFotoCorrente, titolo);}
     function cond() {
   if (navigator.share) {
     // Create a new file object from the image URL
-    fetch(foto.src)
+    fetch(urlFotoCorrente)
       .then(response => response.blob())
       .then(blob => {
         const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
